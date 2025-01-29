@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Farmer {
+  id            Int    @id @default(autoincrement())
+  document      String
+  document_type String
+  name          String
+  farms         Farm[]
+}
+
+model Farm {
+  id              Int       @id @default(autoincrement())
+  farmer_id       Int
+  name            String
+  city            String
+  state           String
+  total_area      Decimal   @db.Decimal(10, 2)
+  arable_area     Decimal   @db.Decimal(10, 2)
+  vegetation_area Decimal   @db.Decimal(10, 2)
+  farmer          Farmer    @relation(fields: [farmer_id], references: [id])
+  harvests        Harvest[]
+}
+
+model Harvest {
+  id            Int           @id @default(autoincrement())
+  farm_id       Int
+  year          DateTime
+  farm          Farm          @relation(fields: [farm_id], references: [id])
+  planted_crops PlantedCrop[]
+
+  @@unique([farm_id, year])
+}
+
+model PlantedCrop {
+  id         String  @id @default(uuid())
+  harvest_id Int
+  name       String
+  production Decimal @db.Decimal(10, 2)
+  harvest    Harvest @relation(fields: [harvest_id], references: [id])
+}
