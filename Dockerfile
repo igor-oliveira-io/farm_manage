@@ -1,5 +1,4 @@
-# Etapa 1: Usar Node.js 20
-FROM node:20 AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -11,13 +10,11 @@ COPY . .
 
 RUN yarn prisma generate
 
+RUN yarn prisma migrate deploy
+
+RUN yarn prisma db seed
+
 RUN yarn build
-
-FROM node:20
-
-WORKDIR /app
-
-COPY --from=builder /app /app
 
 EXPOSE 3000
 
